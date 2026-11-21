@@ -1,0 +1,10 @@
+# data and model files are never committed (spec 4.1, 4.3)
+data/
+artifacts/
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.DS_Store

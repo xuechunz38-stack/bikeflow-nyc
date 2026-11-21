@@ -1,0 +1,11 @@
+# Only packages from the spec section 1 tech stack, pinned.
+# Airflow itself comes from the apache/airflow:2.10.5 image (B1).
+polars==2.1.0
+requests==2.34.2
+psycopg[binary]==3.3.9
+scikit-learn==1.9.1
+joblib==1.6.0
+holidays==0.109
+streamlit==1.67.0
+pytest==9.2.0
+ruff==0.17.6
