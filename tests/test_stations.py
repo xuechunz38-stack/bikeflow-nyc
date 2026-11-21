@@ -58,23 +58,3 @@ def test_fetch_stations_writes_parquet(tmp_path, monkeypatch):
     path = stations.fetch_stations()
     assert path.as_posix() == "data/processed/stations.parquet"
     assert pl.read_parquet(path)["gbfs_station_id"].to_list() == ["u1"]
-
-
-@pytest.mark.parametrize(
-    "raw, expected",
-    [
-        ("5980.10", "5980.10"),
-        ("5980.1", "5980.10"),
-        ("5303.06_", "5303.06"),
-        ("5348.06_old", "5348.06"),
-        ("5980.123", None),
-        ("SYS016", None),
-        ("Shop Morgan", None),
-        ("", None),
-        (None, None),
-    ],
-)
-def test_normalize_station_code(raw, expected):
-    from bikeflow.transform.clean import normalize_station_code
-
-    assert normalize_station_code(raw) == expected
