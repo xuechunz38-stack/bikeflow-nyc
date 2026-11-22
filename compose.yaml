@@ -1,0 +1,60 @@
+services:
+  postgres:
+    image: postgres:16
+    env_file: .env
+    command: postgres -c timezone=America/New_York
+    environment:
+      TZ: America/New_York
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      retries: 10
+
+  airflow:
+    build:
+      context: .
+      dockerfile: docker/airflow.Dockerfile
+    command: airflow standalone
+    env_file: .env
+    environment:
+      PYTHONPATH: /opt/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      TZ: America/New_York
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./bikeflow:/opt/airflow/bikeflow
+      - ./scripts:/opt/airflow/scripts
+      - ./data:/opt/airflow/data
+      - ./artifacts:/opt/airflow/artifacts
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+    command: streamlit run dashboard/app.py --server.address=0.0.0.0 --server.port=8501
+    env_file: .env
+    environment:
+      PYTHONPATH: /app
+    working_dir: /app
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./dashboard:/app/dashboard
+      - ./bikeflow:/app/bikeflow
+      - ./artifacts:/app/artifacts
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
