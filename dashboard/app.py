@@ -84,9 +84,14 @@ def main() -> None:
     c1.metric("Likely out of bikes", count_of.get("empty_risk", 0))
     c2.metric("Likely out of docks", count_of.get("full_risk", 0))
     c3.metric("Normal", count_of.get("ok", 0))
+    # Show only the clock time so it fits the column; the full timestamp is in
+    # the hover help. Valid snapshots are always less than 60 minutes old.
     c4.metric(
         "Data updated at",
-        latest.strftime("%Y-%m-%d %H:%M") if latest is not None else "no data",
+        latest.strftime("%H:%M") if latest is not None else "no data",
+        help=(
+            f"Newest snapshot: {latest:%Y-%m-%d %H:%M}" if latest is not None else None
+        ),
     )
 
     # Part 3: station map
