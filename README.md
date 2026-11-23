@@ -3,13 +3,13 @@
 Predicts which Citi Bike stations in NYC may run out of bikes or docks by the
 end of the next hour. See the project spec (v2) for the full requirements.
 
-## 项目概述 (B)
+## Overview (B)
 
-## 安装与运行 (B)
+## Setup and running (B)
 
-## 架构 (B)
+## Architecture (B)
 
-## 数据来源与清洗 (A)
+## Data sources and cleaning (A)
 
 ### Sources
 
@@ -112,7 +112,7 @@ on those fixtures (clean → F2 → weather → B's loaders) and checks that eve
 table has exactly the rows of its file. It writes into a throwaway schema,
 so it never touches real data.
 
-## SQL 分析 (A)
+## SQL analysis (A)
 
 Five queries in `sql/analysis/` (A7), run on the loaded July–September 2026
 data. Each file starts with the question it answers. Peak hours are
@@ -218,11 +218,11 @@ demand (9.5 vs 6.5), so its September demand may have changed from
 July–August. These are the stations where the shared hour-of-day curve of
 the Poisson model fits worst (see the Model section).
 
-## 模型 (C)
+## Model (C)
 
-## 看板 (C)
+## Dashboard (C)
 
-## Undercurrents (全员)
+## Undercurrents (all)
 
 ### Data governance (A)
 
@@ -267,6 +267,6 @@ the Poisson model fits worst (see the Model section).
   F2 (about 5.1 million rows) plus F1, F3 and F4 is a few MB, and B's loaders
   move it into Postgres with `COPY` instead of row-by-row inserts.
 
-## 局限性 (全员)
+## Limitations (all)
 
-## 团队分工与 AI 使用说明 (全员)
+## Team roles and AI use (all)
