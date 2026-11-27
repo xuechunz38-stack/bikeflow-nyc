@@ -11,7 +11,7 @@ logs:
 	docker compose logs -f
 
 test:
-	set -a; . ./.env; set +a; POSTGRES_HOST=localhost pytest -q
+	set -a; . ./.env; set +a; POSTGRES_HOST=localhost python -m pytest -q
 
 lint:
 	ruff check .
