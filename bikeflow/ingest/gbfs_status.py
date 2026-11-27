@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 from datetime import datetime
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import polars as pl
@@ -80,6 +81,45 @@ def status_from_gbfs(payload: dict, fetched_at: datetime) -> pl.DataFrame:
         .with_columns(
             unix_to_ny("last_reported").alias("last_reported"),
             pl.lit(fetched_at).cast(pl.Datetime("us")).alias("fetched_at"),
+        )
+        .select(STATUS_COLUMNS)
+    )
+
+
+def status_from_snapshot(path: str | Path) -> pl.DataFrame:
+    """B4: read one B0 snapshot (data/station_status/YYYY-MM-DD/HHMMSS.csv.gz).
+
+    Input: path to a gzipped CSV written by the B0 collector, with last_reported
+    in Unix seconds, flags as 0/1 and fetched_at in UTC (ISO 8601).
+    Output: DataFrame with the station_status columns, times in New York local
+    time without tz. Rows without last_reported are dropped.
+    """
+    raw = pl.read_csv(
+        path,
+        schema_overrides={
+            "station_id": pl.Utf8,
+            "last_reported": pl.Int64,
+            "num_bikes_available": pl.Int32,
+            "num_ebikes_available": pl.Int32,
+            "num_docks_available": pl.Int32,
+            "is_renting": pl.Int8,
+            "is_returning": pl.Int8,
+            "fetched_at": pl.Utf8,
+        },
+    )
+    return (
+        raw.filter(pl.col("last_reported").is_not_null())
+        .with_columns(
+            pl.col("station_id").alias("gbfs_station_id"),
+            unix_to_ny("last_reported").alias("last_reported"),
+            pl.col("fetched_at")
+            .str.to_datetime(time_zone="UTC")
+            .dt.convert_time_zone(NY)
+            .dt.replace_time_zone(None)
+            .cast(pl.Datetime("us"))
+            .alias("fetched_at"),
+            (pl.col("is_renting").fill_null(0) == 1).alias("is_renting"),
+            (pl.col("is_returning").fill_null(0) == 1).alias("is_returning"),
         )
         .select(STATUS_COLUMNS)
     )
